@@ -17,7 +17,7 @@ export default function RestaurantsScreen ({ navigation, route }) {
   const [restaurants, setRestaurants] = useState([])
   const [restaurantToBeDeleted, setRestaurantToBeDeleted] = useState(null)
   const { loggedInUser } = useContext(AuthorizationContext)
-
+  
   useEffect(() => {
     if (loggedInUser) {
       fetchRestaurants()
@@ -25,6 +25,8 @@ export default function RestaurantsScreen ({ navigation, route }) {
       setRestaurants(null)
     }
   }, [loggedInUser, route])
+
+
 
   const renderRestaurant = ({ item }) => {
     return (
@@ -91,6 +93,7 @@ export default function RestaurantsScreen ({ navigation, route }) {
   }
 
   const renderHeader = () => {
+    console.log('restaurant', restaurants)
     return (
       <>
       {loggedInUser &&
@@ -105,6 +108,7 @@ export default function RestaurantsScreen ({ navigation, route }) {
           },
           styles.button
         ]}>
+
         <View style={[{ flex: 1, flexDirection: 'row', justifyContent: 'center' }]}>
           <MaterialCommunityIcons name='plus-circle' color={'white'} size={20}/>
           <TextRegular textStyle={styles.text}>

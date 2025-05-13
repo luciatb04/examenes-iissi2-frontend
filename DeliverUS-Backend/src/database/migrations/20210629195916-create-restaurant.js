@@ -18,6 +18,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
+      messageToFans: {
+allowNull: true,
+type: Sequelize.STRING
+},
+
       postalCode: {
         allowNull: false,
         type: Sequelize.STRING
