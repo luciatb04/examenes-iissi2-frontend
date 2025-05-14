@@ -15,14 +15,18 @@ import { ErrorMessage, Formik } from 'formik'
 import TextError from '../../components/TextError'
 import { prepareEntityImages } from '../../api/helpers/FileUploadHelper'
 import { buildInitialValues } from '../Helper'
+import TextSemiBold from '../../components/TextSemibold'
+import ConfirmationModal from '../../components/ConfirmationModal'
 
 export default function EditRestaurantScreen ({ navigation, route }) {
   const [open, setOpen] = useState(false)
   const [restaurantCategories, setRestaurantCategories] = useState([])
   const [backendErrors, setBackendErrors] = useState()
   const [restaurant, setRestaurant] = useState({})
+  const [percentage, setPercentage] = useState(0.0)
+  const [restaurantToBeSave, setRestaurantToBeSave] = useState(false)
 
-  const [initialRestaurantValues, setInitialRestaurantValues] = useState({ name: null, description: null, address: null, postalCode: null, url: null, shippingCosts: null, email: null, phone: null, restaurantCategoryId: null, logo: null, heroImage: null })
+  const [initialRestaurantValues, setInitialRestaurantValues] = useState({ name: null, description: null, address: null, postalCode: null, url: null, shippingCosts: null, email: null, phone: null, restaurantCategoryId: null, logo: null, heroImage: null, percentage: null })
   const validationSchema = yup.object().shape({
     name: yup
       .string()
@@ -32,6 +36,9 @@ export default function EditRestaurantScreen ({ navigation, route }) {
       .string()
       .max(255, 'Address too long')
       .required('Address is required'),
+    percentage: yup
+      .number()
+      .nullable(),
     postalCode: yup
       .string()
       .max(255, 'Postal code too long')
@@ -129,18 +136,28 @@ export default function EditRestaurantScreen ({ navigation, route }) {
 
   const updateRestaurant = async (values) => {
     setBackendErrors([])
-    try {
-      const updatedRestaurant = await update(restaurant.id, values)
-      showMessage({
-        message: `Restaurant ${updatedRestaurant.name} succesfully updated`,
-        type: 'success',
-        style: GlobalStyles.flashStyle,
-        titleStyle: GlobalStyles.flashTextStyle
-      })
-      navigation.navigate('RestaurantsScreen', { dirty: true })
-    } catch (error) {
-      console.log(error)
-      setBackendErrors(error.errors)
+    console.log(values.percentage)
+    if (percentage !== 0 && !restaurantToBeSave) {
+      setRestaurantToBeSave(true)
+    } else {
+      // Solution
+      setRestaurantToBeSave(false)
+
+      try {
+        const updatedRestaurant = await update(restaurant.id, values)
+        showMessage({
+          message: `Restaurant ${updatedRestaurant.name} succesfully updated`,
+          type: 'success',
+          style: GlobalStyles.flashStyle,
+          titleStyle: GlobalStyles.flashTextStyle
+        })
+        // navigation.navigate('RestaurantsScreen', { dirty: true })
+      } catch (error) {
+        console.log(error)
+        setRestaurantToBeSave(false)
+
+        setBackendErrors(error.errors)
+      }
     }
   }
 
@@ -174,6 +191,33 @@ export default function EditRestaurantScreen ({ navigation, route }) {
                 name='url'
                 label='Url:'
               />
+              <View style= {styles.botones}>
+                  <MaterialCommunityIcons
+                    name={'arrow-up-circle'}
+                    color={GlobalStyles.brandSecondaryTap}
+                    size={40}
+                    onPress={() => {
+                      if (percentage < 5.0) {
+                        const newPercentage = percentage + 0.5
+                        setPercentage(newPercentage)
+                        setFieldValue('percentage', newPercentage)
+                      }
+                    }}
+                  />
+                  <TextSemiBold><TextSemiBold>El porcentaje actual es: <TextSemiBold textStyle={{ color: GlobalStyles.brandPrimary }}>{percentage} %.</TextSemiBold></TextSemiBold></TextSemiBold>
+                  <MaterialCommunityIcons
+                    name={'arrow-down-circle'}
+                    color={GlobalStyles.brandSecondaryTap}
+                    size={40}
+                    onPress={() => {
+                      if (percentage < 5.0) {
+                        const newPercentage = percentage + 0.5
+                        setPercentage(newPercentage)
+                        setFieldValue('percentage', newPercentage)
+                      }
+                    }}
+                  />
+              </View>
               <InputItem
                 name='shippingCosts'
                 label='Shipping costs:'
@@ -250,6 +294,11 @@ export default function EditRestaurantScreen ({ navigation, route }) {
                   </TextRegular>
                 </View>
               </Pressable>
+              <ConfirmationModal
+            isVisible={restaurantToBeSave}
+            onCancel={() => setRestaurantToBeSave(false)}
+            onConfirm={() => updateRestaurant(values)}>
+          </ConfirmationModal>
             </View>
           </View>
         </ScrollView>
@@ -261,6 +310,17 @@ export default function EditRestaurantScreen ({ navigation, route }) {
 const styles = StyleSheet.create({
   button: {
     borderRadius: 8,
+    height: 40,
+    padding: 10,
+    width: '100%',
+    marginTop: 20,
+    marginBottom: 20
+  },
+  botones: {
+    borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     height: 40,
     padding: 10,
     width: '100%',
