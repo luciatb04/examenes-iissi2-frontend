@@ -1,22 +1,23 @@
 /* eslint-disable react/prop-types */
-import React, { useContext, useEffect, useState } from 'react'
-import { StyleSheet, FlatList, Pressable, View } from 'react-native'
+import { useContext, useEffect, useState } from 'react'
+import { FlatList, Pressable, StyleSheet, View } from 'react-native'
 
-import { getAll, remove } from '../../api/RestaurantEndpoints'
-import ImageCard from '../../components/ImageCard'
-import TextSemiBold from '../../components/TextSemibold'
-import TextRegular from '../../components/TextRegular'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import * as GlobalStyles from '../../styles/GlobalStyles'
-import { AuthorizationContext } from '../../context/AuthorizationContext'
 import { showMessage } from 'react-native-flash-message'
-import DeleteModal from '../../components/DeleteModal'
 import restaurantLogo from '../../../assets/restaurantLogo.jpeg'
+import { getAll, remove } from '../../api/RestaurantEndpoints'
+import DeleteModal from '../../components/DeleteModal'
+import ImageCard from '../../components/ImageCard'
+import TextRegular from '../../components/TextRegular'
+import TextSemiBold from '../../components/TextSemibold'
+import { AuthorizationContext } from '../../context/AuthorizationContext'
+import * as GlobalStyles from '../../styles/GlobalStyles'
 
 export default function RestaurantsScreen ({ navigation, route }) {
   const [restaurants, setRestaurants] = useState([])
   const [restaurantToBeDeleted, setRestaurantToBeDeleted] = useState(null)
   const { loggedInUser } = useContext(AuthorizationContext)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (loggedInUser) {
@@ -24,7 +25,11 @@ export default function RestaurantsScreen ({ navigation, route }) {
     } else {
       setRestaurants(null)
     }
-  }, [loggedInUser, route])
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 650)
+    return () => clearTimeout(timer)
+  }, [loggedInUser, route, loading])
 
   const renderRestaurant = ({ item }) => {
     return (
@@ -155,6 +160,11 @@ export default function RestaurantsScreen ({ navigation, route }) {
 
   return (
     <>
+    {loading &&
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <TextRegular>Loading restaurants, please wait...</TextRegular>
+      </View>
+}
     <FlatList
       style={styles.container}
       data={restaurants}

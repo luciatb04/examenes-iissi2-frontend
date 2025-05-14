@@ -2,14 +2,13 @@ import { check } from 'express-validator'
 import { RestaurantCategory } from '../../models/models.js'
 const checkCategoryExists = async (value, { req }) => {
   try {
-    const category = RestaurantCategory.findOne({
+    const category = await RestaurantCategory.findOne({
       where: { name: value }
     })
-    if (!category) {
-      return Promise.resolve('Category succesfully created')
-    } else {
-      return Promise.reject(new Error('Restaurant category succesfullycreated'))
+    if (category !== null) {
+      return Promise.reject(new Error('Category already exists'))
     }
+    return Promise.resolve('Restaurant category created')
   } catch (err) {
     return Promise.reject(new Error(err))
   }
@@ -24,3 +23,4 @@ const create = [
     .trim()
 ]
 export { create }
+

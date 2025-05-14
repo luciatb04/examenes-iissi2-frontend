@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react'
-import { Image, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native'
-import * as ExpoImagePicker from 'expo-image-picker'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import * as yup from 'yup'
+import * as ExpoImagePicker from 'expo-image-picker'
+import { ErrorMessage, Formik } from 'formik'
+import { useEffect, useState } from 'react'
+import { Image, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
+import { showMessage } from 'react-native-flash-message'
+import * as yup from 'yup'
+import restaurantBackground from '../../../assets/restaurantBackground.jpeg'
+import restaurantLogo from '../../../assets/restaurantLogo.jpeg'
 import { create, getRestaurantCategories } from '../../api/RestaurantEndpoints'
 import InputItem from '../../components/InputItem'
+import TextError from '../../components/TextError'
 import TextRegular from '../../components/TextRegular'
 import * as GlobalStyles from '../../styles/GlobalStyles'
-import restaurantLogo from '../../../assets/restaurantLogo.jpeg'
-import restaurantBackground from '../../../assets/restaurantBackground.jpeg'
-import { showMessage } from 'react-native-flash-message'
-import { ErrorMessage, Formik } from 'formik'
-import TextError from '../../components/TextError'
 
 export default function CreateRestaurantScreen ({ navigation }) {
   const [open, setOpen] = useState(false)
@@ -77,7 +77,7 @@ export default function CreateRestaurantScreen ({ navigation }) {
       }
     }
     fetchRestaurantCategories()
-  }, [])
+  }, [navigation])
 
   useEffect(() => {
     (async () => {
@@ -217,6 +217,24 @@ export default function CreateRestaurantScreen ({ navigation }) {
               >
                 <TextRegular>Hero image: </TextRegular>
                 <Image style={styles.image} source={values.heroImage ? { uri: values.heroImage.assets[0].uri } : restaurantBackground} />
+              </Pressable>
+
+              <Pressable
+              onPress={() => navigation.navigate('CreateRestaurantCategoryScreen')}
+              style={({ pressed }) => [
+                {
+                  backgroundColor: pressed
+                    ? GlobalStyles.brandPrimaryTap
+                    : GlobalStyles.brandPrimary
+                },
+                styles.button
+              ]}>
+              <View style={[{ flex: 1, flexDirection: 'row', justifyContent: 'center' }]}>
+                <MaterialCommunityIcons name='plus-circle' color={'white'} size={20}/>
+                <TextRegular textStyle={styles.text}>
+                  Create restaurant category
+                </TextRegular>
+              </View>
               </Pressable>
 
               {backendErrors &&

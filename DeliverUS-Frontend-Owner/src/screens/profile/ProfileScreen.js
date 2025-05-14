@@ -1,18 +1,18 @@
 import * as ExpoImagePicker from 'expo-image-picker'
-import React, { useContext, useState, useEffect } from 'react'
-import { Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View, ScrollView } from 'react-native'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import { AuthorizationContext } from '../../context/AuthorizationContext'
 import { Formik } from 'formik'
-import * as yup from 'yup'
+import { useContext, useEffect, useState } from 'react'
+import { Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import { showMessage } from 'react-native-flash-message'
-import * as GlobalStyles from '../../styles/GlobalStyles'
-import SystemInfo from '../../components/SystemInfo'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import * as yup from 'yup'
 import maleAvatar from '../../../assets/maleAvatar.png'
-import InputItem from '../../components/InputItem'
-import TextRegular from '../../components/TextRegular'
-import TextError from '../../components/TextError'
 import { prepareEntityImages } from '../../api/helpers/FileUploadHelper'
+import InputItem from '../../components/InputItem'
+import SystemInfo from '../../components/SystemInfo'
+import TextError from '../../components/TextError'
+import TextRegular from '../../components/TextRegular'
+import { AuthorizationContext } from '../../context/AuthorizationContext'
+import * as GlobalStyles from '../../styles/GlobalStyles'
 import { buildInitialValues } from '../Helper'
 
 export default function ProfileScreen () {
@@ -42,6 +42,10 @@ export default function ProfileScreen () {
       .string()
       .max(255, 'Address too long')
       .required('Address is required'),
+    password: yup
+      .string()
+      .max(255, 'Password too long')
+      .required('Password is required'),
     postalCode: yup
       .string()
       .max(255, 'Postal code too long')
@@ -106,6 +110,11 @@ export default function ProfileScreen () {
       setBackendErrors(error.errors)
     })
   }
+
+  const handlePasswordVisible = () => {
+    setPasswordVisible(!passwordVisible)
+    console.log('Password visible: ', passwordVisible)
+  }
   return (
     <Formik
       enableReinitialize
@@ -152,6 +161,18 @@ export default function ProfileScreen () {
                     label='Last name'
                     textContentType='familyName'
                   />
+                  <View style={{ position: 'relative', flexDirection: 'row', width: '100%' }}>
+                  <InputItem
+                    name='password'
+                    label='Password'
+                    textContentType='password'
+                    secureTextEntry= {passwordVisible}
+                  />
+                  <Pressable
+                  onPress={handlePasswordVisible}>
+                    <MaterialCommunityIcons name={passwordVisible ? 'eye-off' : 'eye'} size={30} />
+                  </Pressable>
+                  </View>
                   <InputItem
                     name='phone'
                     label='Phone'
