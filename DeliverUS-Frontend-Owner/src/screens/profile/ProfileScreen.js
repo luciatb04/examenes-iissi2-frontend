@@ -18,10 +18,13 @@ import { buildInitialValues } from '../Helper'
 export default function ProfileScreen () {
   const { loggedInUser, signOut, updateProfile } = useContext(AuthorizationContext)
   const [backendErrors, setBackendErrors] = useState()
-  const [passwordVisible, setPasswordVisible] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
+  const [initialUserValues, setInitialUserValues] = useState({ firstName: null, lastName: null, phone: null, address: null, postalCode: null, avatar: null, password: null })
 
-  const [initialUserValues, setInitialUserValues] = useState({ firstName: null, password: null, lastName: null, phone: null, address: null, postalCode: null, avatar: null })
-
+  const toggleVisibility = () => {
+    setIsVisible(!isVisible)
+  }
+  let iconos
   const validationSchema = yup.object().shape({
     firstName: yup
       .string()
@@ -46,7 +49,10 @@ export default function ProfileScreen () {
     postalCode: yup
       .string()
       .max(255, 'Postal code too long')
-      .required('Postal code is required')
+      .required('Postal code is required'),
+    password: yup
+      .string()
+      .required()
   })
 
   useEffect(() => {
@@ -81,6 +87,15 @@ export default function ProfileScreen () {
     }
   }
 
+  const visible = () => {
+    if (isVisible) {
+      setIsVisible(false)
+      return iconos === 'eye'
+    } else {
+      setIsVisible(true)
+      return iconos === 'eye-off'
+    }
+  }
   const update = (data) => {
     setBackendErrors([])
 
@@ -163,6 +178,24 @@ export default function ProfileScreen () {
                     label='Phone'
                     textContentType='telephoneNumber'
                   />
+                  <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                  <InputItem
+                  name='password'
+                  label='Pass:'
+                  secureTextEntry={isVisible}/>
+
+                  <Pressable onPress={toggleVisibility}>
+                    <View>
+                      <MaterialCommunityIcons name= {isVisible ? 'eye' : 'eye-off'}
+                      color={'black'}
+                      size={20}
+
+                      />
+                      <TextRegular>hola</TextRegular>
+                    </View>
+                  </Pressable>
+
+                </View>
                   <InputItem
                     name='address'
                     label='Address'

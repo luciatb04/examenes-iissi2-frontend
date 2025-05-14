@@ -176,8 +176,23 @@ export default function CreateRestaurantScreen ({ navigation }) {
                 style={{ backgroundColor: GlobalStyles.brandBackground }}
                 dropDownStyle={{ backgroundColor: '#fafafa' }}
               />
-              <ErrorMessage name={'restaurantCategoryId'} render={msg => <TextError>{msg}</TextError> }/>
-
+              <Pressable
+                onPress={() => navigation.navigate('CreateRestaurantsCategoryScreen')}
+                style={({ pressed }) => [
+                  {
+                    backgroundColor: pressed
+                      ? GlobalStyles.brandBlueTap
+                      : GlobalStyles.brandBlue
+                  },
+                  styles.button
+                ]}>
+              <View style={[{ flex: 1, flexDirection: 'row', justifyContent: 'center' }]}>
+                <MaterialCommunityIcons name='content-save' color={'white'} size={20}/>
+                <TextRegular textStyle={styles.text}>
+                  New category
+                </TextRegular>
+              </View>
+              </Pressable>
               <Pressable onPress={() =>
                 pickImage(
                   async result => {

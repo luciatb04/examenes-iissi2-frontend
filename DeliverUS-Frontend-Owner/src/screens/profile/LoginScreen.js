@@ -12,6 +12,8 @@ import { showMessage } from 'react-native-flash-message'
 
 export default function LoginScreen ({ navigation }) {
   const { signIn } = useContext(AuthorizationContext)
+  const [visible, setVisible] = useState(false)
+
   const [backendErrors, setBackendErrors] = useState()
   const validationSchema = yup.object().shape({
     email: yup
@@ -47,6 +49,7 @@ export default function LoginScreen ({ navigation }) {
         setBackendErrors(error.errors)
       })
   }
+
 
   return (
 
