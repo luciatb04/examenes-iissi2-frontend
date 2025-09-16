@@ -54,7 +54,7 @@ const loadFileRoutes = function (app) {
     .get(
       checkEntityExists(Restaurant, 'restaurantId'),
       ProductController.indexRestaurant)
-
+  // app.route('/restaurants/:restaurantsId/percentage')
   app.route('/restaurants/:restaurantId/analytics')
     .get(
       isLoggedIn,

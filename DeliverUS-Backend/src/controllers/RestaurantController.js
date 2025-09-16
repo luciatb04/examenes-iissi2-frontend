@@ -1,4 +1,4 @@
-import { Restaurant, Product, RestaurantCategory, ProductCategory } from '../models/models.js'
+import { sequelizeSession, Restaurant, Product, RestaurantCategory, ProductCategory } from '../models/models.js'
 
 const index = async function (req, res) {
   try {
@@ -71,11 +71,35 @@ const show = async function (req, res) {
 }
 
 const update = async function (req, res) {
+  // abre transaccion manualmente
+  const transaction = await sequelizeSession.transaction()
   try {
-    await Restaurant.update(req.body, { where: { id: req.params.restaurantId } })
+    // Solution: not explicitly requested, but the use of a transaction is valued
+
+    // actualiza el restaurante con los datos que se le pasan al body
+    await Restaurant.update(req.body, { where: { id: req.params.restaurantId } }, transaction)
+    // cargar todos los productos del restaurante
+    const productsToBeUpdated = await Product.findAll({
+      where: { id: req.params.restaurantId },
+      transaction
+    })
+    // para cada producto se le calcula el nuevo precio a partir del porcentaje
+    for (const product of productsToBeUpdated) {
+      if (req.body.percentage !== 0) {
+        const newPrice = product.basePrice + product.basePrice * (req.body.percentage / 100)
+        await product.update({ price: newPrice }, { transaction })
+      }
+    }
+    // confirmar la trnasiccion
+    await transaction.commit()
+    // devolver el restaurante actualizado
     const updatedRestaurant = await Restaurant.findByPk(req.params.restaurantId)
+
     res.json(updatedRestaurant)
+    // por si hay error
   } catch (err) {
+    await transaction.rollback()
+
     res.status(500).send(err)
   }
 }

@@ -18,6 +18,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DOUBLE
       },
+      basePrice: {
+        type: Sequelize.DOUBLE
+      },
       image: {
         type: Sequelize.STRING
       },
