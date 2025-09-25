@@ -25,6 +25,10 @@ module.exports = {
       url: {
         type: Sequelize.STRING
       },
+      pinnedAt: {
+
+        type: Sequelize.DATE
+      },
       shippingCosts: {
         allowNull: false,
         defaultValue: 0.0,

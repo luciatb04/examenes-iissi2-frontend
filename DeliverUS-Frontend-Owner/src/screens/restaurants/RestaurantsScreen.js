@@ -2,7 +2,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { StyleSheet, FlatList, Pressable, View } from 'react-native'
 
-import { getAll, remove } from '../../api/RestaurantEndpoints'
+import { getAll, remove, toggledPin } from '../../api/RestaurantEndpoints'
 import ImageCard from '../../components/ImageCard'
 import TextSemiBold from '../../components/TextSemibold'
 import TextRegular from '../../components/TextRegular'
@@ -13,10 +13,13 @@ import { showMessage } from 'react-native-flash-message'
 import DeleteModal from '../../components/DeleteModal'
 import restaurantLogo from '../../../assets/restaurantLogo.jpeg'
 
+import ConfirmationModal from '../../components/ConfirmationModal'
+
 export default function RestaurantsScreen ({ navigation, route }) {
   const [restaurants, setRestaurants] = useState([])
   const [restaurantToBeDeleted, setRestaurantToBeDeleted] = useState(null)
   const { loggedInUser } = useContext(AuthorizationContext)
+  const [confirmation, setConfirmation] = useState(null)
 
   useEffect(() => {
     if (loggedInUser) {
@@ -40,6 +43,17 @@ export default function RestaurantsScreen ({ navigation, route }) {
           <TextSemiBold>Avg. service time: <TextSemiBold textStyle={{ color: GlobalStyles.brandPrimary }}>{item.averageServiceMinutes} min.</TextSemiBold></TextSemiBold>
         }
         <TextSemiBold>Shipping: <TextSemiBold textStyle={{ color: GlobalStyles.brandPrimary }}>{item.shippingCosts.toFixed(2)}€</TextSemiBold></TextSemiBold>
+        <View style={[{ flex: 1, justifyContent: 'flex-end', flexDirection: 'row', alignItems: 'center' }]}>
+        <Pressable
+        onPress={() => setConfirmation(item)}
+         >
+        <MaterialCommunityIcons
+          name={item.pinnedAt ? 'pin' : 'pin-outline'}
+          color={GlobalStyles.brandSecondaryTap}
+          size={24}
+          />
+          </Pressable>
+        </View>
         <View style={styles.actionButtonsContainer}>
           <Pressable
             onPress={() => navigation.navigate('EditRestaurantScreen', { id: item.id })
@@ -130,6 +144,28 @@ export default function RestaurantsScreen ({ navigation, route }) {
     }
   }
 
+  const pinnedRestaurant = async (restaurant) => {
+    try {
+      await toggledPin(restaurant.id)
+      await fetchRestaurants()
+      setConfirmation(null)
+      showMessage({
+        message: `Restaurant ${restaurant.name} succesfully pinned`,
+        type: 'success',
+        style: GlobalStyles.flashStyle,
+        titleStyle: GlobalStyles.flashTextStyle
+      })
+    } catch (error) {
+      console.log(error)
+      setConfirmation(null)
+      showMessage({
+        message: `Restaurant ${restaurant.name} could not be pinned.`,
+        type: 'error',
+        style: GlobalStyles.flashStyle,
+        titleStyle: GlobalStyles.flashTextStyle
+      })
+    }
+  }
   const removeRestaurant = async (restaurant) => {
     try {
       await remove(restaurant.id)
@@ -170,6 +206,13 @@ export default function RestaurantsScreen ({ navigation, route }) {
         <TextRegular>The products of this restaurant will be deleted as well</TextRegular>
         <TextRegular>If the restaurant has orders, it cannot be deleted.</TextRegular>
     </DeleteModal>
+    <ConfirmationModal
+        isVisible= {confirmation !== null}
+        onCalcel={() => setConfirmation(null)}
+        onConfirm={() => pinnedRestaurant(confirmation)}
+    >
+
+    </ConfirmationModal>
     </>
   )
 }

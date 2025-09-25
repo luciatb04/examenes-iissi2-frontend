@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Image, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native'
+import { Image, Platform, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native'
 import * as ExpoImagePicker from 'expo-image-picker'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import * as yup from 'yup'
@@ -13,13 +13,14 @@ import restaurantBackground from '../../../assets/restaurantBackground.jpeg'
 import { showMessage } from 'react-native-flash-message'
 import { ErrorMessage, Formik } from 'formik'
 import TextError from '../../components/TextError'
+import TextSemiBold from '../../components/TextSemibold'
 
 export default function CreateRestaurantScreen ({ navigation }) {
   const [open, setOpen] = useState(false)
   const [restaurantCategories, setRestaurantCategories] = useState([])
   const [backendErrors, setBackendErrors] = useState()
 
-  const initialRestaurantValues = { name: null, description: null, address: null, postalCode: null, url: null, shippingCosts: null, email: null, phone: null, restaurantCategoryId: null }
+  const initialRestaurantValues = { name: null, description: null, address: null, postalCode: null, url: null, shippingCosts: null, email: null, phone: null, restaurantCategoryId: null, pinned: false }
   const validationSchema = yup.object().shape({
     name: yup
       .string()
@@ -49,6 +50,9 @@ export default function CreateRestaurantScreen ({ navigation }) {
       .string()
       .nullable()
       .max(255, 'Phone too long'),
+    pinned: yup
+      .boolean(),
+
     restaurantCategoryId: yup
       .number()
       .positive()
@@ -207,7 +211,17 @@ export default function CreateRestaurantScreen ({ navigation }) {
               {backendErrors &&
                 backendErrors.map((error, index) => <TextError key={index}>{error.param}-{error.msg}</TextError>)
               }
-
+              <TextSemiBold>Pin Restaurant?</TextSemiBold>
+               <Switch
+                      trackColor={{ false: GlobalStyles.brandSecondary, true: GlobalStyles.brandPrimary }}
+                      thumbColor={values.pinned ? GlobalStyles.brandSecondary : '#0f4eeeff'}
+                    // onValueChange={toggleSwitch}
+                    value={values.pinned}
+                   style={styles.switch}
+                    onValueChange={value =>
+                      setFieldValue('pinned', value)
+                              }
+                   />
               <Pressable
                 onPress={handleSubmit}
                 style={({ pressed }) => [
