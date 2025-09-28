@@ -4,6 +4,16 @@ import { checkFileIsImage, checkFileMaxSize } from './FileValidationHelper.js'
 
 const maxFileSize = 2000000 // around 2Mb
 
+const checkVisibilityAndAvailability = async (value, { req }) => {
+  try {
+    if (value === false && req.body.visibleUntil !== null) {
+      return Promise.reject(new Error('un porducto no puede tener fecha de visibilidad y no estar disponible a la vez '))
+    } else { return Promise.resolve() }
+  } catch (err) {
+    return Promise.reject(new Error(err))
+  }
+}
+
 const checkRestaurantExists = async (value, { req }) => {
   try {
     const restaurant = await Restaurant.findByPk(req.body.restaurantId)
@@ -14,15 +24,27 @@ const checkRestaurantExists = async (value, { req }) => {
     return Promise.reject(new Error(err))
   }
 }
+
+const checkVisibilidadFecha = async (value) => {
+  try {
+    if (value.getTime() < Date.now()) {
+      return Promise.reject(new Error('La fecha de visibilidad no debe ser la misma que la fecha actual'))
+    } else { return Promise.resolve() }
+  } catch (err) {
+    return Promise.reject(new Error(err))
+  }
+}
+
 const create = [
   check('name').exists().isString().isLength({ min: 1, max: 255 }).trim(),
   check('description').optional({ checkNull: true, checkFalsy: true }).isString().isLength({ min: 1 }).trim(),
   check('price').exists().isFloat({ min: 0 }).toFloat(),
   check('order').default(null).optional({ nullable: true }).isInt().toInt(),
-  check('availability').optional().isBoolean().toBoolean(),
+  check('availability').optional().isBoolean().toBoolean().custom(checkVisibilityAndAvailability),
   check('productCategoryId').exists().isInt({ min: 1 }).toInt(),
   check('restaurantId').exists().isInt({ min: 1 }).toInt(),
   check('restaurantId').custom(checkRestaurantExists),
+  check('visibleUntil').optional({ checkNull: true, checkFalsy: true }).isDate().toDate().custom(checkVisibilidadFecha),
   check('image').custom((value, { req }) => {
     return checkFileIsImage(req, 'image')
   }).withMessage('Please upload an image with format (jpeg, png).'),
@@ -36,8 +58,9 @@ const update = [
   check('description').optional({ nullable: true, checkFalsy: true }).isString().isLength({ min: 1 }).trim(),
   check('price').exists().isFloat({ min: 0 }).toFloat(),
   check('order').default(null).optional({ nullable: true }).isInt().toInt(),
-  check('availability').optional().isBoolean().toBoolean(),
+  check('availability').optional().isBoolean().toBoolean().custom(checkVisibilityAndAvailability),
   check('productCategoryId').exists().isInt({ min: 1 }).toInt(),
+  check('visibleUntil').optional({ checkNull: true, checkFalsy: true }).isDate().toDate().custom(checkVisibilidadFecha),
   check('restaurantId').not().exists(),
   check('image').custom((value, { req }) => {
     return checkFileIsImage(req, 'image')

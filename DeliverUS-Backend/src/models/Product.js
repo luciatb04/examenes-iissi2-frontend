@@ -20,6 +20,10 @@ const loadModel = (sequelize, DataTypes) => {
   }
   Product.init({
     name: DataTypes.STRING,
+    visibleUntil: {
+      type: DataTypes.DATE,
+      defaultValue: null
+    },
     description: DataTypes.STRING,
     price: DataTypes.DOUBLE,
     image: DataTypes.STRING,
