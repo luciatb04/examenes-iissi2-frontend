@@ -4,7 +4,7 @@ import moment from 'moment'
 const loadModel = (sequelize, DataTypes) => {
   class Restaurant extends Model {
     /**
-     * Helper method for defining associations.
+     * Helper method for defininhasManng associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
@@ -14,6 +14,7 @@ const loadModel = (sequelize, DataTypes) => {
       Restaurant.belongsTo(models.User, { foreignKey: 'userId', as: 'user' })
       Restaurant.hasMany(models.Product, { foreignKey: 'restaurantId', as: 'products' })
       Restaurant.hasMany(models.Order, { foreignKey: 'restaurantId', as: 'orders' })
+      Restaurant.hasMany(models.Performance, { foreignKey: 'restaurantId', as: 'performances' })
     }
 
     async getAverageServiceTime () {
