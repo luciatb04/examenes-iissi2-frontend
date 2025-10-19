@@ -14,6 +14,7 @@ const loadModel = (sequelize, DataTypes) => {
       Restaurant.belongsTo(models.User, { foreignKey: 'userId', as: 'user' })
       Restaurant.hasMany(models.Product, { foreignKey: 'restaurantId', as: 'products' })
       Restaurant.hasMany(models.Order, { foreignKey: 'restaurantId', as: 'orders' })
+      Restaurant.hasMany(models.Review, { foreignKey: 'restaurantId', as: 'reviews' })
     }
 
     async getAverageServiceTime () {
@@ -21,6 +22,17 @@ const loadModel = (sequelize, DataTypes) => {
         const orders = await this.getOrders()
         const serviceTimes = orders.filter(o => o.deliveredAt).map(o => moment(o.deliveredAt).diff(moment(o.createdAt), 'minutes'))
         return serviceTimes.reduce((acc, serviceTime) => acc + serviceTime, 0) / serviceTimes.length
+      } catch (err) {
+        return err
+      }
+    }
+
+    async getAvgStars () {
+      try {
+        const reviews = await this.getReviews()
+        if (!reviews.length) return
+        const stars = reviews.filter(r => r.stars)
+        return stars.reduce((acc, stars) => acc + stars, 0) / stars.length
       } catch (err) {
         return err
       }
@@ -46,6 +58,7 @@ const loadModel = (sequelize, DataTypes) => {
       type: DataTypes.DOUBLE
     },
     averageServiceMinutes: DataTypes.DOUBLE,
+    avgStars: DataTypes.DOUBLE,
     email: DataTypes.STRING,
     phone: DataTypes.STRING,
     logo: DataTypes.STRING,

@@ -34,6 +34,10 @@ module.exports = {
         allowNull: true,
         type: Sequelize.DOUBLE
       },
+      avgStars: {
+        allowNull: true,
+        type: Sequelize.DOUBLE
+      },
       email: {
         type: Sequelize.STRING
       },
